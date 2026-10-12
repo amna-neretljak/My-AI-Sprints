@@ -262,7 +262,7 @@ The test finds `migrations/*_create-users.sql` and `wrangler.jsonc` and asserts:
 - `migrations/` contains the `users` migration.
 - Local D1 has the `users` table.
 
-### Phase 2: User service and password hashing - PLANNED
+### Phase 2: User service and password hashing - COMPLETED
 
 **Objective**: Read and write users without exposing SQL to routes.
 
@@ -298,9 +298,9 @@ The test finds `migrations/*_create-users.sql` and `wrangler.jsonc` and asserts:
 
 **Phase acceptance**:
 
-- [ ] `npm test` passes the three Phase 2 files.
-- [ ] A created user stores a salted PBKDF2 string, and the public result has no `password_hash`.
-- [ ] Duplicate username and duplicate email surface as the already-registered error.
+- [x] `npm test` passes the three Phase 2 files.
+- [x] A created user stores a salted PBKDF2 string, and the public result has no `password_hash`.
+- [x] Duplicate username and duplicate email surface as the already-registered error.
 
 **Deliverables**:
 
@@ -605,6 +605,6 @@ When working with this PRD:
 ## Current Status
 
 **Last Updated**: October 12, 2026
-**Current Phase**: Phase 1 - Database
+**Current Phase**: Phase 2 - User service and password hashing
 **Status**: COMPLETED
-**Next Steps**: Wait for review. Phase 2 has not started. The remote D1 database exists and is empty. The `users` migration was applied locally only.
+**Next Steps**: Phase 3 has not started.
