@@ -5,7 +5,7 @@ Date last modified: October 12, 2026
 
 ## Overview/Problem
 
-Teachers will share a bank of multiple-choice questions, and more than one teacher needs to join and later create questions. Phases 1–4 added D1, hashed accounts, register/login/logout APIs, and shadcn pages so a teacher can create an account and reach a placeholder for the question bank. Creating, editing, and answering questions comes later. Phase 5 is the remaining manual check.
+Teachers will share a bank of multiple-choice questions, and more than one teacher needs to join and later create questions. This slice is complete: D1, hashed accounts, register/login/logout APIs, shadcn pages, and a manual pass. Creating, editing, and answering questions comes later.
 
 ## Hypothesis
 
@@ -411,7 +411,7 @@ The test finds `migrations/*_create-users.sql` and `wrangler.jsonc` and asserts:
 - `src/app/mcq/page.tsx`.
 - `src/components/register-form.tsx`, `src/components/login-form.tsx`, `src/components/logout-button.tsx`.
 
-### Phase 5: Manual verification - PLANNED
+### Phase 5: Manual verification - COMPLETED
 
 **Objective**: Confirm the whole feature before calling it done. Automated tests stay green, and the browser checks pass.
 
@@ -430,9 +430,9 @@ The test finds `migrations/*_create-users.sql` and `wrangler.jsonc` and asserts:
 
 **Phase acceptance**:
 
-- [ ] `npm test` passes the full suite.
-- [ ] Each manual check above passed against the local app.
-- [ ] The feature acceptance criteria are checked.
+- [x] `npm test` passes the full suite.
+- [x] Each manual check above passed against the local app.
+- [x] The feature acceptance criteria are checked.
 
 **Deliverables**:
 
@@ -527,19 +527,19 @@ const passwordHash = [...new Uint8Array(digest)]
 
 ## Acceptance Criteria
 
-- [ ] `users` exists in local D1 with `id`, `first_name`, `last_name`, `username`, `email`, and `password_hash`.
-- [ ] `username` and `email` are unique. A second registration with either value returns 409.
-- [ ] A teacher can register when username and email are different, and when they are the same string.
-- [ ] The request body contains the SHA-256 digest, and `password_hash` is a salted PBKDF2 string of that digest. The typed password is not stored and is not returned.
-- [ ] Register and login responses omit `password_hash`.
-- [ ] Login succeeds with the username or with the email, and then the browser opens `/mcq`.
-- [ ] Login with an unknown identifier or a wrong password returns the same 401 message.
-- [ ] Logout returns `{ "ok": true }`, does not change `users`, and the browser opens `/login`.
-- [ ] `/mcq` shows that the question bank is not built yet, and it loads without a prior login.
-- [ ] `updateUser` and `deleteUser` exist on the user service and have no HTTP route.
-- [ ] No session cookie, token, or social-login path is added.
-- [ ] `npm test` passes the full Vitest suite.
-- [ ] `npm run lint` and `npm run build` succeed.
+- [x] `users` exists in local D1 with `id`, `first_name`, `last_name`, `username`, `email`, and `password_hash`.
+- [x] `username` and `email` are unique. A second registration with either value returns 409.
+- [x] A teacher can register when username and email are different, and when they are the same string.
+- [x] The request body contains the SHA-256 digest, and `password_hash` is a salted PBKDF2 string of that digest. The typed password is not stored and is not returned.
+- [x] Register and login responses omit `password_hash`.
+- [x] Login succeeds with the username or with the email, and then the browser opens `/mcq`.
+- [x] Login with an unknown identifier or a wrong password returns the same 401 message.
+- [x] Logout returns `{ "ok": true }`, does not change `users`, and the browser opens `/login`.
+- [x] `/mcq` shows that the question bank is not built yet, and it loads without a prior login.
+- [x] `updateUser` and `deleteUser` exist on the user service and have no HTTP route.
+- [x] No session cookie, token, or social-login path is added.
+- [x] `npm test` passes the full Vitest suite.
+- [x] `npm run lint` and `npm run build` succeed.
 
 ## Success Metrics
 
@@ -647,6 +647,6 @@ When working with this PRD:
 ## Current Status
 
 **Last Updated**: October 12, 2026
-**Current Phase**: Phase 4 - Pages
+**Current Phase**: Phase 5 - Manual verification
 **Status**: COMPLETED
-**Next Steps**: Phase 5 (manual verification) has not started.
+**Next Steps**: This slice is done. Question-bank features are out of scope here.
