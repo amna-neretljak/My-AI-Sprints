@@ -308,7 +308,7 @@ The test finds `migrations/*_create-users.sql` and `wrangler.jsonc` and asserts:
 - `src/lib/services/user-service.ts`.
 - Password helpers used by the service and the forms.
 
-### Phase 3: Register, login, and logout endpoints - PLANNED
+### Phase 3: Register, login, and logout endpoints - COMPLETED
 
 **Objective**: Expose the three routes that call the user service.
 
@@ -344,9 +344,9 @@ The test finds `migrations/*_create-users.sql` and `wrangler.jsonc` and asserts:
 
 **Phase acceptance**:
 
-- [ ] `npm test` passes the three route test files.
-- [ ] Duplicate username returns the 409 body above.
-- [ ] Unknown account and wrong password return the same 401 body.
+- [x] `npm test` passes the three route test files.
+- [x] Duplicate username returns the 409 body above.
+- [x] Unknown account and wrong password return the same 401 body.
 
 **Deliverables**:
 
@@ -544,7 +544,7 @@ const passwordHash = [...new Uint8Array(digest)]
 
 - Cloudflare D1 — stores `users`. The database must be created and bound before the service can run.
 - Web Crypto — SHA-256 in the browser and PBKDF2 on the server. No new hashing package.
-- Zod — request validation. Not installed yet. Add it when Phase 3 starts; it is the project standard for untrusted input and avoids a one-off validator.
+- Zod — request validation. Installed in Phase 3 as a runtime dependency so register and login can reject untrusted bodies before calling the user service.
 - Vitest, Testing Library, `user-event`, jsdom, and `vite-tsconfig-paths` — the test harness. Not installed yet. Add them at the start of Phase 1, before the first red test. Vitest is the project test framework.
 
 ### Internal Dependencies
@@ -605,6 +605,6 @@ When working with this PRD:
 ## Current Status
 
 **Last Updated**: October 12, 2026
-**Current Phase**: Phase 2 - User service and password hashing
+**Current Phase**: Phase 3 - Register, login, and logout endpoints
 **Status**: COMPLETED
-**Next Steps**: Phase 3 has not started.
+**Next Steps**: Phase 4 has not started.
