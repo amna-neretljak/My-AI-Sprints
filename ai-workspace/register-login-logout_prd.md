@@ -5,7 +5,7 @@ Date last modified: October 12, 2026
 
 ## Overview/Problem
 
-Teachers will share a bank of multiple-choice questions, and more than one teacher needs to join and later create questions. The app is still the unmodified starter: there is no database, no account, and no way to tell teachers apart. This feature adds registration, login, and logout so a teacher can create an account and reach a placeholder for the question bank. Creating, editing, and answering questions comes later.
+Teachers will share a bank of multiple-choice questions, and more than one teacher needs to join and later create questions. Phases 1–4 added D1, hashed accounts, register/login/logout APIs, and shadcn pages so a teacher can create an account and reach a placeholder for the question bank. Creating, editing, and answering questions comes later. Phase 5 is the remaining manual check.
 
 ## Hypothesis
 
@@ -21,7 +21,8 @@ We believe that account registration with a hashed password, plus login and logo
 - HTTP endpoints for register, login, and logout. Register and login are the only endpoints that read or write `users`.
 - An error response when registration uses a username that is already taken: 409 `{ "error": "Username or email is already registered." }`. The same response is used when the email is already registered.
 - Password hashing in the browser when the teacher submits registration or login, then a second hash on the server before the value is stored.
-- Pages for registration and login, and a stub page at `/mcq` that register and login send the teacher to.
+- Pages for registration and login, and a stub page at `/mcq` that register and login send the teacher to. Login and register use the shadcn login and signup blocks already in this project (`Card`, `Field`, `Input`, `Button`), centered with `min-h-svh` and `max-w-sm`.
+- `/` redirects to `/register`. The Next.js starter page is not shown.
 - A logout control on the stub page that calls the logout endpoint and returns the teacher to login.
 - Vitest tests for every phase, written before that phase's implementation. A phase is complete only when those tests pass and that phase's acceptance criteria are checked.
 
@@ -43,9 +44,9 @@ We believe that account registration with a hashed password, plus login and logo
 
 ### Database Schema
 
-D1 is not configured yet. Create a database named `my-ai-sprints` (`npx wrangler d1 create my-ai-sprints`), add the returned `d1_databases` block to `wrangler.jsonc` with binding `DB`, then regenerate types with `npm run cf-typegen`.
+D1 is configured. Database name `my-ai-sprints`, binding `DB` (not the Wrangler default `my_ai_sprints`), database id `25a50ae6-4663-4028-a702-c7ea5d000e99` in `wrangler.jsonc`. Types were regenerated with `npm run cf-typegen` so `env.DB` is typed.
 
-Create the migration with Wrangler. Do not write the schema by hand outside `migrations/`, and do not apply it to the remote database. Apply locally only:
+The `users` table is `migrations/0001_create-users.sql`. Agents apply it locally only. Do not run `migrations apply --remote` unless the user does that themselves:
 
 ```bash
 npx wrangler d1 migrations create my-ai-sprints create-users
@@ -89,7 +90,7 @@ A public user looks like this:
 }
 ```
 
-The `password` field on register and login is the browser hash (lowercase hex SHA-256), not the typed password. Handlers reject a value that is not 64 hex characters.
+The `password` field on register and login is the browser hash (lowercase hex SHA-256), not the typed password. Handlers reject a value that is not 64 hex characters. Register validates with Zod 4 (`z.email()`, name 1–100, username 3–64, password `/^[0-9a-f]{64}$/`). Login validates `identifier` (trimmed, min 1) and the same password digest.
 
 #### POST /api/auth/register
 
@@ -145,7 +146,7 @@ Does not read or write `users`. There is no session to end. The handler acknowle
 **Response:**
 
 - Success (200): `{ "ok": true }`
-- Error (500): `{ "error": "Unable to log out." }`
+- There is no failure path in this slice. Logout does not read D1, so it does not return 500.
 
 ### User service
 
@@ -159,7 +160,7 @@ Does not read or write `users`. There is no session to end. The handler acknowle
 | `updateUser` | No endpoint yet | Updates `first_name`, `last_name`, `username`, or `email` for an id. Does not change the password in this feature. |
 | `deleteUser` | No endpoint yet | Deletes the row for an id. |
 
-`createUser` treats a unique-constraint failure as "username or email is already registered" so the route can return 409.
+`createUser` treats a unique-constraint failure as `UserAlreadyRegisteredError` with message "Username or email is already registered." so the route can return 409. `updateUser` uses the same error.
 
 ### Password hashing
 
@@ -172,21 +173,26 @@ Two hashes, in this order:
 pbkdf2-sha256$100000$<salt hex>$<derived hex>
 ```
 
-`verifyPassword` parses that string and compares with `crypto.subtle.timingSafeEqual` when available, otherwise a constant-time comparison of the derived bytes. A row whose `password_hash` does not use this format fails verification.
+`verifyPassword` in `src/lib/password.ts` parses that string and compares the derived bytes with `timingSafeEqual` from `node:crypto`. A row whose `password_hash` does not use this format fails verification. The user service’s `verifyPassword(identifier, digest)` looks the user up first, then calls that helper.
 
 No password-hashing library. Web Crypto is already available in the browser and in Workers.
 
 ### User Interface Requirements
 
-Use the existing shadcn `field`, `input`, `label`, `button`, and `card` components. Forms that hash the password are client components. Keep that directive on the form, not on the page.
+Use the existing shadcn `field`, `input`, `label`, `button`, and `card` components from `src/components/ui/`. Import `cn` from `@/lib/utils`. Forms that hash the password are client components. Keep that directive on the form, not on the page.
+
+The page shells and card layout come from the shadcn **login** and **signup** blocks. Keep that layout: a full-viewport centered column (`flex min-h-svh w-full items-center justify-center p-6 md:p-10`) with a `max-w-sm` card. The login page renders `LoginForm`. The register page uses the signup block as `RegisterForm` at `/register` (not `/signup`).
+
+Those blocks include Google buttons and a “Forgot your password?” link. Do not ship them. Social login and password reset are out of scope. Replace `#` links with `/register` and `/login`. Replace the signup block’s single “Full Name” field with first name, last name, and username.
 
 Validation below runs in the browser before hashing, and again on the server for everything except password length (the server only sees the digest).
 
 #### Register (`/register`)
 
+- Page layout: the shadcn signup shell. Title “Create an account”. Description “Enter your information below to create your account”.
 - Fields: first name, last name, username, email, password, confirm password.
 - First and last name: required, trimmed, 1–100 characters.
-- Username: required, 3–64 characters, letters, numbers, `.`, `_`, and `-` only.
+- Username: required, 3–64 characters after trim. It may be an email address so it can equal the email field. The API does not restrict username to `[A-Za-z0-9._-]`, because that would reject `ada@school.edu`.
 - Email: required, valid email format. It may equal the username.
 - Password: required, at least 8 characters. Hashed in the browser before the request.
 - Confirm password: must match the typed password. It is not sent.
@@ -195,7 +201,8 @@ Validation below runs in the browser before hashing, and again on the server for
 
 #### Login (`/login`)
 
-- Fields: username or email, password.
+- Page layout: the shadcn login shell. Title “Login to your account”. Description tells the teacher to enter a username or email.
+- Fields: username or email, password. The identifier control is a text field, not `type="email"`, so a username is valid.
 - Identifier: required, non-empty after trim.
 - Password: required, hashed in the browser the same way as registration.
 - Submit calls `POST /api/auth/login`. Success navigates to `/mcq`.
@@ -203,21 +210,18 @@ Validation below runs in the browser before hashing, and again on the server for
 
 #### Question bank stub (`/mcq`)
 
+- Same centered `max-w-sm` card shell as login and register, so the three pages share one layout.
 - Static page. Copy states that the multiple-choice question bank will be built later.
 - One action: Log out. It calls `POST /api/auth/logout` and then navigates to `/login`.
 - The page does not check whether anyone logged in. That matches the decision to skip session management.
 
-`src/app/page.tsx` stays the starter page. This feature does not replace it.
+`/` redirects to `/register`. The Next.js starter page is not shown.
 
 ## Testing
 
-Vitest is the test framework for this feature. It is not installed yet. At the start of Phase 1, before any feature test, install it and add the harness from the project testing guide:
+Vitest is the test framework. It is installed. Scripts are `test` (`vitest run`) and `test:watch` (`vitest`). Config is `vitest.config.ts` with `@vitejs/plugin-react@5` (version 6 conflicts with Babel 7 in this repo), `vite-tsconfig-paths`, `environment: "jsdom"`, and `globals: true`.
 
-```bash
-npm install -D vitest @vitejs/plugin-react @testing-library/react @testing-library/user-event jsdom vite-tsconfig-paths
-```
-
-`@testing-library/user-event` is included because the register and login tests type into forms and submit them. Add `vitest.config.ts` with the React plugin, `vite-tsconfig-paths`, `environment: "jsdom"`, and `globals: true`. Add scripts `test` (`vitest run`) and `test:watch` (`vitest`).
+`@testing-library/user-event` drives the register and login forms. In a TTY, Vitest erases the pass/fail footer when the run ends. `npm test | cat` keeps that summary on screen.
 
 Each phase starts by writing that phase's tests and running `npm test`. The run is red: the behavior is missing, so the assertions fail. Implementation then turns those tests green. A phase is successful only when both of these are true:
 
@@ -355,7 +359,7 @@ The test finds `migrations/*_create-users.sql` and `wrangler.jsonc` and asserts:
 - `src/app/api/auth/login/route.ts`.
 - `src/app/api/auth/logout/route.ts`.
 
-### Phase 4: Pages - PLANNED
+### Phase 4: Pages - COMPLETED
 
 **Objective**: A teacher can register or log in and land on the question-bank stub, then log out.
 
@@ -385,24 +389,27 @@ The test finds `migrations/*_create-users.sql` and `wrangler.jsonc` and asserts:
 
 **Tasks**:
 
-1. Build `/register` and `/login` with client-side hashing before submit.
-2. Build the `/mcq` stub with logout.
-3. Re-run `npm test` until the Phase 4 test files are green.
+1. Build `/register` and `/login` from the shadcn signup and login blocks, with client-side hashing before submit.
+2. Build the `/mcq` stub with logout, using the same centered card shell.
+3. Redirect `/` to `/register`.
+4. Re-run `npm test` until the Phase 4 test files are green.
 
 **Phase acceptance**:
 
-- [ ] `npm test` passes the Phase 4 test files.
-- [ ] The register form shows the duplicate-username error from a 409.
-- [ ] The login form shows the bad-credentials error from a 401.
-- [ ] Register and login success open `/mcq`, and logout opens `/login`.
+- [x] `npm test` passes the Phase 4 test files.
+- [x] The register form shows the duplicate-username error from a 409.
+- [x] The login form shows the bad-credentials error from a 401.
+- [x] Register and login success open `/mcq`, and logout opens `/login`.
+- [x] `/` redirects to `/register`.
 
 **Deliverables**:
 
 - The four Phase 4 test files.
+- `src/app/page.tsx` — `redirect("/register")`.
 - `src/app/register/page.tsx`.
 - `src/app/login/page.tsx`.
 - `src/app/mcq/page.tsx`.
-- Client form components under `src/components/`.
+- `src/components/register-form.tsx`, `src/components/login-form.tsx`, `src/components/logout-button.tsx`.
 
 ### Phase 5: Manual verification - PLANNED
 
@@ -437,20 +444,25 @@ The test finds `migrations/*_create-users.sql` and `wrangler.jsonc` and asserts:
 
 ### Key Files
 
-- `vitest.config.ts` — Vitest harness. Tests import `@/` through `vite-tsconfig-paths`.
+- `vitest.config.ts` — Vitest harness. Tests import `@/` through `vite-tsconfig-paths`. `@vitejs/plugin-react` is pinned to v5.
 - `migrations/create-users.test.ts` — schema assertions, written before the migration.
-- `wrangler.jsonc` — D1 binding `DB` for database `my-ai-sprints`.
-- `migrations/0001_create-users.sql` — `users` table. Applied locally only.
+- `wrangler.jsonc` — D1 binding `DB` for database `my-ai-sprints` (`25a50ae6-4663-4028-a702-c7ea5d000e99`).
+- `migrations/0001_create-users.sql` — `users` table. Applied locally in Phase 1.
+- `next.config.ts` — `initOpenNextCloudflareForDev()` so `getCloudflareContext()` works under `npm run dev`.
 - `src/lib/db.ts` — `getCloudflareContext()` and `env.DB`. Server-only.
-- `src/lib/password.ts` — server PBKDF2 hash and verify. Server-only. Covered by `src/lib/password.test.ts`.
+- `src/lib/password.ts` — server PBKDF2 hash and verify with `node:crypto` `timingSafeEqual`. Server-only. Covered by `src/lib/password.test.ts`.
 - `src/lib/password-client.ts` — browser SHA-256 hex digest. Safe to import from a client component. Covered by `src/lib/password-client.test.ts`.
-- `src/lib/services/user-service.ts` — create, update, delete, lookup, and password check. Covered by `src/lib/services/user-service.test.ts`.
+- `src/lib/services/user-service.ts` — create, update, delete, lookup, password check, and `UserAlreadyRegisteredError`. Covered by `src/lib/services/user-service.test.ts`.
 - `src/app/api/auth/register/route.ts` — register endpoint. Covered by `src/app/api/auth/register/route.test.ts`.
 - `src/app/api/auth/login/route.ts` — login endpoint. Covered by `src/app/api/auth/login/route.test.ts`.
 - `src/app/api/auth/logout/route.ts` — logout acknowledgement. Covered by `src/app/api/auth/logout/route.test.ts`.
-- `src/app/register/page.tsx` — registration form.
-- `src/app/login/page.tsx` — login form.
-- `src/app/mcq/page.tsx` — question-bank stub and logout.
+- `src/app/page.tsx` — redirects `/` to `/register`.
+- `src/app/register/page.tsx` — registration page using the shadcn signup layout. Renders `src/components/register-form.tsx`.
+- `src/app/login/page.tsx` — login page using the shadcn login layout. Renders `src/components/login-form.tsx`.
+- `src/app/mcq/page.tsx` — question-bank stub and logout. Renders `src/components/logout-button.tsx`.
+- `src/components/register-form.tsx` — client form. Hashes the password, posts to `/api/auth/register`, shows 409/400, navigates to `/mcq`.
+- `src/components/login-form.tsx` — client form. Hashes the password, posts to `/api/auth/login`, shows 401, navigates to `/mcq`.
+- `src/components/logout-button.tsx` — posts to `/api/auth/logout`, then navigates to `/login`.
 
 ### Implementation Patterns
 
@@ -507,9 +519,11 @@ const passwordHash = [...new Uint8Array(digest)]
 - Logout cannot end an authenticated session. Anyone can open `/mcq` directly. Do not add a cookie, `localStorage` flag, or middleware check in this feature.
 - `updateUser` and `deleteUser` must not be called from the three auth routes.
 - Each phase writes its Vitest tests first. The first `npm test` of that phase is red. The phase is done when those tests are green and that phase's acceptance criteria are checked.
-- Apply migrations locally only. Never `migrations apply --remote`.
-- Verify auth against the Workers runtime with `npm run preview`. `npm run dev` runs on Node and will not show D1 binding problems.
-- Do not deploy unless explicitly asked.
+- Apply migrations locally only. Never `migrations apply --remote` unless the user runs that command.
+- `initOpenNextCloudflareForDev()` in `next.config.ts` lets `npm run dev` reach local D1. `npm run preview` is still the check for the Workers runtime.
+- OpenNext’s Cloudflare build imports `esbuild`. It is a direct devDependency (`^0.27.7`) because Node does not resolve the copy nested under Wrangler.
+- A curl against `/api/auth/register` must send the SHA-256 digest, not the typed password. SHA-256 of `password` is `5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8`.
+- Do not deploy unless explicitly asked. Agents do not create further migrations in later phases.
 
 ## Acceptance Criteria
 
@@ -542,16 +556,17 @@ const passwordHash = [...new Uint8Array(digest)]
 
 ### External Dependencies
 
-- Cloudflare D1 — stores `users`. The database must be created and bound before the service can run.
-- Web Crypto — SHA-256 in the browser and PBKDF2 on the server. No new hashing package.
-- Zod — request validation. Installed in Phase 3 as a runtime dependency so register and login can reject untrusted bodies before calling the user service.
-- Vitest, Testing Library, `user-event`, jsdom, and `vite-tsconfig-paths` — the test harness. Not installed yet. Add them at the start of Phase 1, before the first red test. Vitest is the project test framework.
+- Cloudflare D1 — stores `users`. Bound as `DB` to database `my-ai-sprints`.
+- Web Crypto — SHA-256 in the browser (`digestPassword`) and PBKDF2 on the server (`hashPassword`). No password-hashing package.
+- Zod 4.6 — request validation on register and login. Runtime dependency.
+- Vitest 5, Testing Library, `user-event`, jsdom, `vite-tsconfig-paths`, and `@vitejs/plugin-react@5` — the test harness. Installed in Phase 1.
+- `esbuild` 0.27 — required by `@opennextjs/cloudflare` at build/deploy time. Direct devDependency.
 
 ### Internal Dependencies
 
-- `@opennextjs/cloudflare` `getCloudflareContext()` — the only way to reach `env.DB`.
-- shadcn `field`, `input`, `label`, `button`, and `card` — registration, login, and the stub.
-- Wrangler migrations — schema changes. Local apply only.
+- `@opennextjs/cloudflare` `getCloudflareContext()` — the only way to reach `env.DB`. `initOpenNextCloudflareForDev()` in `next.config.ts` enables that under `next dev`.
+- shadcn `field`, `input`, `label`, `button`, and `card` — registration, login, and the stub. Tailwind CSS v4 in `src/app/globals.css`.
+- Wrangler migrations — schema changes. Agents apply locally only.
 
 No new environment variables. No secrets in this feature.
 
@@ -588,6 +603,33 @@ No new environment variables. No secrets in this feature.
 **Solution**: Install `@vitejs/plugin-react@5` with the rest of the Vitest packages. Phase 1 used that pin.
 **Code Reference**: `package.json`
 
+### OpenNext deploy cannot find `esbuild`
+
+**Problem**: `npm run deploy` fails with `Cannot find package 'esbuild' imported from .../@opennextjs/cloudflare/dist/cli/build/bundle-server.js`.
+**Cause**: OpenNext imports `esbuild` as a top-level package, and npm had only nested copies under Wrangler.
+**Solution**: Add `esbuild` as a direct devDependency.
+**Code Reference**: `package.json`
+
+### Vitest pass/fail counts disappear after `npm test`
+
+**Problem**: The terminal shows green checkmarks per file, but not `Test Files  N passed`.
+**Cause**: Vitest draws that summary as a live TTY footer and erases it when the process exits.
+**Solution**: Run `npm test | cat`.
+**Code Reference**: `vitest.config.ts`
+
+### curl against register prints nothing
+
+**Problem**: Pasting the curl command into the `npm run dev` terminal produces no JSON.
+**Cause**: That terminal is the Next.js server, not a shell that can run curl.
+**Solution**: Leave `npm run dev` running and run curl in a second terminal.
+
+### Register or login against `next dev` hangs or returns 500
+
+**Problem**: The API cannot reach D1 under Node.
+**Cause**: `getCloudflareContext()` needs the OpenNext dev helper and a local migration.
+**Solution**: Keep `initOpenNextCloudflareForDev()` in `next.config.ts`, apply `0001_create-users.sql` with `--local`, or verify with `npm run preview`.
+**Code Reference**: `next.config.ts:15`
+
 ## Notes for AI Agents
 
 When working with this PRD:
@@ -605,6 +647,6 @@ When working with this PRD:
 ## Current Status
 
 **Last Updated**: October 12, 2026
-**Current Phase**: Phase 3 - Register, login, and logout endpoints
+**Current Phase**: Phase 4 - Pages
 **Status**: COMPLETED
-**Next Steps**: Phase 4 has not started.
+**Next Steps**: Phase 5 (manual verification) has not started.
