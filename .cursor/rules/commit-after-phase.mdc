@@ -1,18 +1,16 @@
 ---
-description: Remind the user to commit after each PRD phase
+description: Commit and push after each PRD phase
 alwaysApply: true
 ---
 
-# Commit after each phase
+# Commit and push after each phase
 
-When a phase in a technical PRD (`ai-workspace/*_prd.md`) is complete — its tests pass, its acceptance criteria are checked, and its status marker is updated — stop there.
+When a phase in a technical PRD (`ai-workspace/*_prd.md`) is complete — its tests pass, its acceptance criteria are checked, and its status marker is updated — commit that phase and push it to the remote. Do not wait to be asked. Do not start the next phase in the same turn.
 
-Remind the user to commit before the next phase starts. Do not create the commit unless they ask. Do not start the next phase in the same turn.
+Commit only the files for that phase. Write a message that says why the phase exists, in the repository's existing style. Example:
 
-Say what would be committed, in one or two sentences, and suggest a commit message that says why the phase exists. Example:
+> Add the questions, choices, and attempts tables.
 
-> Phase 1 is done. Commit `migrations/0002_create-mcq.sql` and `migrations/create-mcq.test.ts` before Phase 2?
->
-> Suggested message: `Add the questions, choices, and attempts tables.`
+Push the current branch with `git push`. If it has no upstream yet, use `git push -u origin HEAD`. Never push to `main` or `master`. Never force-push.
 
-If the user asks to start the next phase while the finished phase is still uncommitted, remind them once and ask whether to commit first or continue.
+If a later request starts the next phase while the finished phase is still uncommitted, commit and push that phase first, then stop.
