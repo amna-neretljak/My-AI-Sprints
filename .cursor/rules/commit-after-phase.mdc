@@ -1,16 +1,20 @@
 ---
-description: Commit and push after each PRD phase
+description: Ask before committing and pushing each PRD phase
 alwaysApply: true
 ---
 
-# Commit and push after each phase
+# Ask before committing after each phase
 
-When a phase in a technical PRD (`ai-workspace/*_prd.md`) is complete — its tests pass, its acceptance criteria are checked, and its status marker is updated — commit that phase and push it to the remote. Do not wait to be asked. Do not start the next phase in the same turn.
+When a phase in a technical PRD (`ai-workspace/*_prd.md`) is complete — its tests pass, its acceptance criteria are checked, and its status marker is updated — stop there. Do not start the next phase in the same turn.
 
-Commit only the files for that phase. Write a message that says why the phase exists, in the repository's existing style. Example:
+Ask the user whether to commit and push. Do not commit or push unless they say yes.
 
-> Add the questions, choices, and attempts tables.
+Say which files would be committed, in one or two sentences, and suggest a commit message that says why the phase exists. Example:
 
-Push the current branch with `git push`. If it has no upstream yet, use `git push -u origin HEAD`. Never push to `main` or `master`. Never force-push.
+> Phase 1 is done. Commit `migrations/0002_create-mcq.sql` and `migrations/create-mcq.test.ts`, then push `feature/mcq`?
+>
+> Suggested message: `Add the questions, choices, and attempts tables.`
 
-If a later request starts the next phase while the finished phase is still uncommitted, commit and push that phase first, then stop.
+If they say yes, commit only the files for that phase, using the repository's existing message style, then push the current branch with `git push`. If it has no upstream yet, use `git push -u origin HEAD`. Never push to `main` or `master`. Never force-push.
+
+If a later request starts the next phase while the finished phase is still uncommitted, ask once whether to commit and push first, or continue without committing.
