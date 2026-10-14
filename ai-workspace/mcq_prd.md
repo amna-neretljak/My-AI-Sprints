@@ -372,7 +372,7 @@ Tests sit next to the code they cover. They assert observable results: SQL and b
 
 - `migrations/0002_create-mcq.sql` and `migrations/create-mcq.test.ts`.
 
-### Phase 2: Question and attempt services - PLANNED
+### Phase 2: Question and attempt services - COMPLETED
 
 **Objective**: Read and write questions, choices, and attempts without exposing SQL to the routes.
 
@@ -405,8 +405,8 @@ Tests sit next to the code they cover. They assert observable results: SQL and b
 
 **Phase acceptance**:
 
-- [ ] `npm test` passes both service test files.
-- [ ] No module other than these two services queries `questions`, `choices`, or `attempts`.
+- [x] `npm test` passes both service test files.
+- [x] No module other than these two services queries `questions`, `choices`, or `attempts`.
 
 **Deliverables**:
 
@@ -743,6 +743,6 @@ When working with this PRD:
 ## Current Status
 
 **Last Updated**: October 14, 2026
-**Current Phase**: Phase 2 - Question and attempt services
-**Status**: PLANNED (Phase 1 COMPLETED: `0002_create-mcq.sql` applied locally and, by the user, to the remote database. Foreign keys enforced, full suite green.)
-**Next Steps**: Write `question-service.test.ts` and `attempt-service.test.ts`, see them fail, then implement the services.
+**Current Phase**: Phase 3 - Endpoints
+**Status**: PLANNED (Phase 2 COMPLETED: question and attempt services pass their tests. The full suite is green.)
+**Next Steps**: Write the route tests, see them fail, and implement the question endpoints.
