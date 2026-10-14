@@ -482,6 +482,7 @@ Tests sit next to the code they cover. They assert observable results: SQL and b
 
 - [x] `npm test` passes the Phase 4 test files.
 - [x] The `/mcq` placeholder text is gone.
+- [x] The user deployed the Phase 4 Worker (question list) on October 14, 2026. Agents did not run that command.
 
 **Deliverables**:
 
@@ -514,13 +515,14 @@ Tests sit next to the code they cover. They assert observable results: SQL and b
 
 - [x] `npm test` passes `question-form.test.tsx`.
 - [x] Created and edited questions appear correctly in the list.
+- [x] The user deployed the Phase 5 Worker (create and edit form) on October 14, 2026, before the phase was committed. Agents did not run that command.
 
 **Deliverables**:
 
 - `src/components/mcq/question-form.tsx` and its test.
 - `src/app/mcq/new/page.tsx` and `src/app/mcq/[id]/edit/page.tsx`.
 
-### Phase 6: Preview and answer - PLANNED
+### Phase 6: Preview and answer - COMPLETED
 
 **Objective**: Any teacher can answer any question and be told whether the answer was correct.
 
@@ -540,15 +542,16 @@ Tests sit next to the code they cover. They assert observable results: SQL and b
 
 **Phase acceptance**:
 
-- [ ] `npm test` passes `question-preview.test.tsx`.
-- [ ] The preview's network responses contain no `isCorrect` for choices.
+- [x] `npm test` passes `question-preview.test.tsx`.
+- [x] The preview's network responses contain no `isCorrect` for choices.
+- [x] The user deployed the Phase 6 Worker (preview and answer) on October 14, 2026, before the phase was committed. Agents did not run that command.
 
 **Deliverables**:
 
 - `src/components/mcq/question-preview.tsx` and its test.
 - `src/app/mcq/[id]/preview/page.tsx`.
 
-### Phase 7: Manual verification - PLANNED
+### Phase 7: Manual verification - COMPLETED
 
 **Objective**: Confirm the whole feature against local D1 before calling it done.
 
@@ -568,9 +571,9 @@ Tests sit next to the code they cover. They assert observable results: SQL and b
 
 **Phase acceptance**:
 
-- [ ] `npm test`, `npm run lint`, and `npm run build` pass.
-- [ ] Every manual check above passed.
-- [ ] The feature acceptance criteria are checked.
+- [x] `npm test`, `npm run lint`, and `npm run build` pass.
+- [x] Every manual check above passed. The user confirmed the full pass on October 14, 2026.
+- [x] The feature acceptance criteria are checked.
 
 **Deliverables**:
 
@@ -657,17 +660,17 @@ export default async function McqPage({
 
 ## Acceptance Criteria
 
-- [ ] `questions`, `choices`, and `attempts` exist in local D1 with the foreign keys and indexes above. `questions` has a required `name` and a required `question`, and no `description`.
-- [ ] Questions and attempts store `user_id` as a foreign key to `users.id`. No cookie, session, or token is added.
-- [ ] Login and register open `/mcq?userId=<id>`, which shows every teacher's questions in a table with Name, Question, and Actions.
-- [ ] Every row's Actions menu (three vertical dots) offers Edit, Preview, and Delete.
-- [ ] Create opens a form with Name, Question, and 2 choice rows. It allows up to 6 choices, requires the name, the question, and exactly one correct answer, and has Save and Cancel.
-- [ ] Any teacher can edit any question's name, question, choices, and correct answer.
-- [ ] Any teacher can delete any question after confirming. The question, its choices, and its attempts are removed.
-- [ ] Preview shows the question and its choices with Submit. It records an attempt for the answering teacher and shows "Correct answer!" or "Incorrect answer. Try again."
-- [ ] Correctness is decided on the server. The preview never receives `isCorrect`.
-- [ ] Validation rejects an empty name or question, fewer than 2 choices, more than 6, and anything other than exactly one correct choice (400).
-- [ ] `npm test` passes the full suite. `npm run lint` and `npm run build` succeed.
+- [x] `questions`, `choices`, and `attempts` exist in local D1 with the foreign keys and indexes above. `questions` has a required `name` and a required `question`, and no `description`.
+- [x] Questions and attempts store `user_id` as a foreign key to `users.id`. No cookie, session, or token is added.
+- [x] Login and register open `/mcq?userId=<id>`, which shows every teacher's questions in a table with Name, Question, and Actions.
+- [x] Every row's Actions menu (three vertical dots) offers Edit, Preview, and Delete.
+- [x] Create opens a form with Name, Question, and 2 choice rows. It allows up to 6 choices, requires the name, the question, and exactly one correct answer, and has Save and Cancel.
+- [x] Any teacher can edit any question's name, question, choices, and correct answer.
+- [x] Any teacher can delete any question after confirming. The question, its choices, and its attempts are removed.
+- [x] Preview shows the question and its choices with Submit. It records an attempt for the answering teacher and shows "Correct answer!" or "Incorrect answer. Try again."
+- [x] Correctness is decided on the server. The preview never receives `isCorrect`.
+- [x] Validation rejects an empty name or question, fewer than 2 choices, more than 6, and anything other than exactly one correct choice (400).
+- [x] `npm test` passes the full suite. `npm run lint` and `npm run build` succeed.
 
 ## Success Metrics
 
@@ -756,6 +759,6 @@ When working with this PRD:
 ## Current Status
 
 **Last Updated**: October 14, 2026
-**Current Phase**: Phase 6 - Preview and answer
-**Status**: Phase 5 COMPLETED. Teachers can create and edit questions with 2–6 choices and one correct answer. Create and edit were verified in the browser against local D1.
-**Next Steps**: Write `question-preview.test.tsx`, see it fail, then build the preview/answer page.
+**Current Phase**: Complete
+**Status**: Phase 7 COMPLETED. The user confirmed the manual pass on October 14, 2026. The shared question bank is done: create, edit, delete, preview, and answer.
+**Next Steps**: None. The MCQ feature is complete.
