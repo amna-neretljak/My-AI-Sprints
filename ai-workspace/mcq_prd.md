@@ -488,7 +488,7 @@ Tests sit next to the code they cover. They assert observable results: SQL and b
 - `src/app/mcq/page.tsx` and `src/components/mcq/question-list.tsx`, with tests.
 - The new shadcn files in `src/components/ui/`.
 
-### Phase 5: Create and edit form - PLANNED
+### Phase 5: Create and edit form - COMPLETED
 
 **Objective**: Teachers can create a question with 2–6 choices and one correct answer, and can edit any question.
 
@@ -512,8 +512,8 @@ Tests sit next to the code they cover. They assert observable results: SQL and b
 
 **Phase acceptance**:
 
-- [ ] `npm test` passes `question-form.test.tsx`.
-- [ ] Created and edited questions appear correctly in the list.
+- [x] `npm test` passes `question-form.test.tsx`.
+- [x] Created and edited questions appear correctly in the list.
 
 **Deliverables**:
 
@@ -756,6 +756,6 @@ When working with this PRD:
 ## Current Status
 
 **Last Updated**: October 14, 2026
-**Current Phase**: Phase 5 - Create and edit form
-**Status**: PLANNED (Phase 4 COMPLETED: the question list replaces the `/mcq` stub. Login and register pass `userId`. The full suite is green.)
-**Next Steps**: Write `question-form.test.tsx`, see it fail, then build the create and edit form.
+**Current Phase**: Phase 6 - Preview and answer
+**Status**: Phase 5 COMPLETED. Teachers can create and edit questions with 2–6 choices and one correct answer. Create and edit were verified in the browser against local D1.
+**Next Steps**: Write `question-preview.test.tsx`, see it fail, then build the preview/answer page.
