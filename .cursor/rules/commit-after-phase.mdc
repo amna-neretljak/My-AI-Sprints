@@ -1,0 +1,18 @@
+---
+description: Remind the user to commit after each PRD phase
+alwaysApply: true
+---
+
+# Commit after each phase
+
+When a phase in a technical PRD (`ai-workspace/*_prd.md`) is complete — its tests pass, its acceptance criteria are checked, and its status marker is updated — stop there.
+
+Remind the user to commit before the next phase starts. Do not create the commit unless they ask. Do not start the next phase in the same turn.
+
+Say what would be committed, in one or two sentences, and suggest a commit message that says why the phase exists. Example:
+
+> Phase 1 is done. Commit `migrations/0002_create-mcq.sql` and `migrations/create-mcq.test.ts` before Phase 2?
+>
+> Suggested message: `Add the questions, choices, and attempts tables.`
+
+If the user asks to start the next phase while the finished phase is still uncommitted, remind them once and ask whether to commit first or continue.
