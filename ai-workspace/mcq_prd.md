@@ -413,7 +413,7 @@ Tests sit next to the code they cover. They assert observable results: SQL and b
 - `src/lib/services/question-service.ts` and `src/lib/services/question-service.test.ts`.
 - `src/lib/services/attempt-service.ts` and `src/lib/services/attempt-service.test.ts`.
 
-### Phase 3: Endpoints - PLANNED
+### Phase 3: Endpoints - COMPLETED
 
 **Objective**: Expose the services over HTTP with validation and stable error bodies.
 
@@ -446,8 +446,8 @@ Tests sit next to the code they cover. They assert observable results: SQL and b
 
 **Phase acceptance**:
 
-- [ ] `npm test` passes the three route test files.
-- [ ] Correctness comes only from the server.
+- [x] `npm test` passes the three route test files.
+- [x] Correctness comes only from the server.
 
 **Deliverables**:
 
@@ -743,6 +743,6 @@ When working with this PRD:
 ## Current Status
 
 **Last Updated**: October 14, 2026
-**Current Phase**: Phase 3 - Endpoints
-**Status**: PLANNED (Phase 2 COMPLETED: question and attempt services pass their tests. The full suite is green.)
-**Next Steps**: Write the route tests, see them fail, and implement the question endpoints.
+**Current Phase**: Phase 4 - Question list page
+**Status**: PLANNED (Phase 3 COMPLETED: question endpoints pass their route tests. The full suite is green.)
+**Next Steps**: Write the question-list tests, see them fail, and replace the `/mcq` stub.
