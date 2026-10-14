@@ -69,12 +69,12 @@ export function RegisterForm({ ...props }: React.ComponentProps<typeof Card>) {
 					password: await digestPassword(password),
 				}),
 			});
-			const body = (await response.json()) as { error?: string };
+			const body = (await response.json()) as { error?: string; user?: { id: string } };
 			if (!response.ok) {
 				setError(body.error ?? "Unable to register.");
 				return;
 			}
-			router.push("/mcq");
+			router.push(`/mcq?userId=${body.user?.id ?? ""}`);
 		} catch {
 			setError("Unable to register.");
 		} finally {

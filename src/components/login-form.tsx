@@ -50,12 +50,12 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
 					password: await digestPassword(password),
 				}),
 			});
-			const body = (await response.json()) as { error?: string };
+			const body = (await response.json()) as { error?: string; user?: { id: string } };
 			if (!response.ok) {
 				setError(body.error ?? "Unable to log in.");
 				return;
 			}
-			router.push("/mcq");
+			router.push(`/mcq?userId=${body.user?.id ?? ""}`);
 		} catch {
 			setError("Unable to log in.");
 		} finally {

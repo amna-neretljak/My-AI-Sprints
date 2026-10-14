@@ -448,13 +448,14 @@ Tests sit next to the code they cover. They assert observable results: SQL and b
 
 - [x] `npm test` passes the three route test files.
 - [x] Correctness comes only from the server.
+- [x] The user deployed the Phase 3 Worker (question API routes) on October 14, 2026. Agents did not run that command.
 
 **Deliverables**:
 
 - The three route handlers and their tests.
 - `src/lib/validation/question.ts`.
 
-### Phase 4: Question list page - PLANNED
+### Phase 4: Question list page - COMPLETED
 
 **Objective**: After login or register, the teacher lands on a table of all questions and can delete any of them.
 
@@ -479,8 +480,8 @@ Tests sit next to the code they cover. They assert observable results: SQL and b
 
 **Phase acceptance**:
 
-- [ ] `npm test` passes the Phase 4 test files.
-- [ ] The `/mcq` placeholder text is gone.
+- [x] `npm test` passes the Phase 4 test files.
+- [x] The `/mcq` placeholder text is gone.
 
 **Deliverables**:
 
@@ -725,7 +726,19 @@ No new environment variables or secrets.
 
 ## Troubleshooting Guide
 
-No entries yet. Add one whenever a bug is found and fixed during implementation.
+### shadcn generated files import `cn` from `"cn"`
+
+**Problem**: After `npx shadcn@latest add @shadcn/dropdown-menu` (and the other Phase 4 components), the generated files import `import { cn } from "cn"`, and npm installs a `cn` package.
+**Cause**: The Base UI registry currently emits that import instead of `@/lib/utils`.
+**Solution**: Change those imports to `import { cn } from "@/lib/utils"` and uninstall `cn`. Do not overwrite `button.tsx` when the CLI asks.
+**Code Reference**: `src/components/ui/dropdown-menu.tsx`, `alert-dialog.tsx`, `radio-group.tsx`, `textarea.tsx`
+
+### Base UI Button `render` with a Link
+
+**Problem**: Using `<Button render={<Link href="..." />}>` logs "expected a native `<button>` because the `nativeButton` prop is true," and the result keeps `role="button"` on an `<a>`.
+**Cause**: Base UI Button defaults `nativeButton` to true.
+**Solution**: Style a `Link` with `buttonVariants()` instead of wrapping it in `Button`.
+**Code Reference**: `src/components/mcq/question-list.tsx`
 
 ## Notes for AI Agents
 
@@ -743,6 +756,6 @@ When working with this PRD:
 ## Current Status
 
 **Last Updated**: October 14, 2026
-**Current Phase**: Phase 4 - Question list page
-**Status**: PLANNED (Phase 3 COMPLETED: question endpoints pass their route tests. The full suite is green.)
-**Next Steps**: Write the question-list tests, see them fail, and replace the `/mcq` stub.
+**Current Phase**: Phase 5 - Create and edit form
+**Status**: PLANNED (Phase 4 COMPLETED: the question list replaces the `/mcq` stub. Login and register pass `userId`. The full suite is green.)
+**Next Steps**: Write `question-form.test.tsx`, see it fail, then build the create and edit form.

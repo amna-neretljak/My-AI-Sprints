@@ -70,7 +70,7 @@ describe("LoginForm", () => {
 		);
 	});
 
-	it("navigates to /mcq after a successful login", async () => {
+	it("navigates to /mcq?userId= after a successful login", async () => {
 		const user = userEvent.setup();
 		const push = mockRouter();
 		vi.mocked(fetch).mockResolvedValue({
@@ -84,6 +84,6 @@ describe("LoginForm", () => {
 		await user.type(screen.getByLabelText("Password"), "password");
 		await user.click(screen.getByRole("button", { name: "Login" }));
 
-		await waitFor(() => expect(push).toHaveBeenCalledWith("/mcq"));
+		await waitFor(() => expect(push).toHaveBeenCalledWith("/mcq?userId=user-1"));
 	});
 });

@@ -101,7 +101,7 @@ describe("RegisterForm", () => {
 		);
 	});
 
-	it("navigates to /mcq after a successful registration", async () => {
+	it("navigates to /mcq?userId= after a successful registration", async () => {
 		const user = userEvent.setup();
 		const push = mockRouter();
 		vi.mocked(fetch).mockResolvedValue({
@@ -114,6 +114,6 @@ describe("RegisterForm", () => {
 		await fillValidAccount(user);
 		await user.click(screen.getByRole("button", { name: "Create Account" }));
 
-		await waitFor(() => expect(push).toHaveBeenCalledWith("/mcq"));
+		await waitFor(() => expect(push).toHaveBeenCalledWith("/mcq?userId=user-1"));
 	});
 });
